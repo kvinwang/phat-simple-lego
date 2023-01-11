@@ -19,9 +19,9 @@ mod lego {
         }
 
         #[ink(message)]
-        pub fn run(&self, actions: String) {
+        pub fn run(&self, actions: String) -> bool {
             let script = include_str!("./js/dist/index.js");
-            _ = crate::js::eval(script, &[actions]).log_err("Failed to run actions").unwrap();
+            crate::js::eval(script, &[actions]).log_err("Failed to run actions").is_ok()
         }
     }
 }
