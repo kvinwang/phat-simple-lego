@@ -47,8 +47,10 @@
     "@jridgewell/resolve-uri" "3.1.0"
     "@jridgewell/sourcemap-codec" "1.4.14"
 
-"@phala/pink-env@../../phat-quickjs/npm_package/pink-env":
-  version "1.0.4"
+"@phala/pink-env@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@phala/pink-env/-/pink-env-1.0.5.tgz#435fc86f2be9c91cb24f375ce0a5af2e086efd5c"
+  integrity sha512-Ure+QsnNoxteZ//sVGivUKZYX5l1BRkpmiWo2cbMoIaVjPcUBHlmpM7jXGwxiFih9siiIjvJRQjhvIcubVWLEw==
 
 "@scale-codec/core@^1.1.1":
   version "1.1.1"

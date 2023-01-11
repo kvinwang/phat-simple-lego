@@ -14,7 +14,7 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "@phala/pink-env": "../../phat-quickjs/npm_package/pink-env",
+    "@phala/pink-env": "^1.0.5",
     "@scale-codec/core": "^1.1.1"
   },
   "devDependencies": {
