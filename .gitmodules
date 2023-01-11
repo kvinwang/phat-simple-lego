@@ -1,6 +1,3 @@
 [submodule "setup"]
 	path = setup
 	url = https://github.com/shelvenzhou/phala-blockchain-setup.git
-[submodule "contracts/phat-quickjs"]
-	path = contracts/phat-quickjs
-	url = https://github.com/Phala-Network/phat-quickjs.git
