@@ -7,16 +7,16 @@ import * as scaleCore from "@scale-codec/core";
 interface Action {
   cmd: string;
   name?: string;
-  config: string;
+  config: string | object;
 }
 
-function runPipeline(actions: Action[], initInput: string) {
+function pipeline(actions: Action[], initInput: string) {
   var input: any = initInput;
   for (var i = 0; i < actions.length; i++) {
     const action = actions[i];
     const name = action.name || action.cmd;
     console.log(
-      `running action [${name}], ${action.cmd}(input=${JSON.stringify(input)})`
+      `running action [${name}], ${action.cmd}(input=${input})`
     );
     input = runAction(action, input);
   }
@@ -37,11 +37,8 @@ function runAction({ cmd, config }: Action, input: any): any {
   }
 }
 
-function actionFetch(config: string, input: any): any {
-  var base = {};
-  if (config && config.length > 0) {
-    base = JSON.parse(config);
-  }
+function actionFetch(config: any, input: any): any {
+  var base = config || {};
   var req: any = {};
   if (input) {
     if (typeof input === "string" && input.length > 0) {
@@ -65,11 +62,11 @@ function actionFetch(config: string, input: any): any {
   return response;
 }
 
-function actionCall(config: string, input: any): Uint8Array {
+function actionCall(config: any, input: any): Uint8Array {
   const args: {
     callee: string;
     selector: number;
-  } = JSON.parse(config);
+  } = config;
   if (!(input instanceof Uint8Array)) {
     throw new Error("call contract input must be a Uint8Array");
   }
@@ -80,7 +77,10 @@ function actionCall(config: string, input: any): Uint8Array {
   return output;
 }
 
-function actionEval(config: string, input: any): any {
+function actionEval(script: any, input: any): any {
+  if (typeof script !== "string") {
+    throw new Error("Trying to eval non-string");
+  }
   const scale = {
     encode: scaleCore.WalkerImpl.encode,
     encodeU128: scaleCore.encodeU128,
@@ -92,11 +92,12 @@ function actionEval(config: string, input: any): any {
     createStructEncoder: scaleCore.createStructEncoder,
     createEnumEncoder: scaleCore.createEnumEncoder,
   };
-  return eval(config);
+  return eval(script);
 }
 
 (function () {
-  let config = JSON.parse(scriptArgs[0]);
+  console.log(`Actions: ${scriptArgs[0]}`);
+  let actions = JSON.parse(scriptArgs[0]);
   var input = scriptArgs[1];
-  runPipeline(config, input);
+  pipeline(actions, input);
 })();

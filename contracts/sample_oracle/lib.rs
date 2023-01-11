@@ -75,7 +75,6 @@ mod sample_oracle {
             Ok(())
         }
 
-        // Returning `()` as a workaround for https://github.com/l00k/devphase/issues/19
         #[ink(message)]
         pub fn handle_req(&self, eth_usd_price: u128) -> () {
             pink::info!("handle_req(price={eth_usd_price})");

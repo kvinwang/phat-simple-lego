@@ -1034,10 +1034,10 @@ des.js@^1.0.0:
     inherits "^2.0.1"
     minimalistic-assert "^1.0.0"
 
-devphase@^0.0.25:
-  version "0.0.25"
-  resolved "https://registry.yarnpkg.com/devphase/-/devphase-0.0.25.tgz#213d30752198d2ac4368c77f84436d3e0f6a1ad0"
-  integrity sha512-aC/680eIAUaCKig/Y9zoqYqv4pjHOCcAeoi0YkahQk9vjVSlhHmLrnFYu9aLkf03k1LaVQDP0nRU4rvENK8CxQ==
+devphase@^0.0.32:
+  version "0.0.32"
+  resolved "https://registry.yarnpkg.com/devphase/-/devphase-0.0.32.tgz#c1fa3e5675f38022822c3e95c8f971f71a63b9e2"
+  integrity sha512-ej3HVm+T2ijByApZhspUFr/sSxD1dJ84Ga1RLzBtz7RrvLSnvyBOvfLfgN8s/DgCuPfWLzjQp1iiO6xc4c48zw==
   dependencies:
     "@phala/sdk" "^0.3.5-beta.9"
     "@phala/typedefs" "^0.2.32"
@@ -1054,6 +1054,7 @@ devphase@^0.0.25:
     glob "^8.0.3"
     lodash "^4.17.21"
     mocha "^10.0.0"
+    prompts "^2.4.2"
     ts-morph "^16.0.0"
     tsconfig-paths "^4.1.0"
 
@@ -1398,6 +1399,11 @@ json5@^2.2.2:
   resolved "https://registry.yarnpkg.com/json5/-/json5-2.2.3.tgz#78cd6f1a19bdc12b73db5ad0c61efd66c1e29283"
   integrity sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==
 
+kleur@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
+  integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
+
 locate-path@^6.0.0:
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/locate-path/-/locate-path-6.0.0.tgz#55321eb309febbc59c4801d931a72452a681d286"
@@ -1682,6 +1688,14 @@ picomatch@^2.0.4, picomatch@^2.2.1, picomatch@^2.3.1:
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.3.1.tgz#3ba3833733646d9d3e4995946c1365a67fb07a42"
   integrity sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==
 
+prompts@^2.4.2:
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/prompts/-/prompts-2.4.2.tgz#7b57e73b3a48029ad10ebd44f74b01722a4cb069"
+  integrity sha512-NxNv/kLguCA7p3jE8oL2aEBsrJWgAakBpgmgK6lpPWV+WuOmY6r2/zbAVnP+T8bQlA0nzHXSJSJW0Hq7ylaD2Q==
+  dependencies:
+    kleur "^3.0.3"
+    sisteransi "^1.0.5"
+
 propagate@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/propagate/-/propagate-2.0.1.tgz#40cdedab18085c792334e64f0ac17256d38f9a45"
@@ -1815,6 +1829,11 @@ sha.js@^2.4.0, sha.js@^2.4.8:
   dependencies:
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
+
+sisteransi@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/sisteransi/-/sisteransi-1.0.5.tgz#134d681297756437cc05ca01370d3a7a571075ed"
+  integrity sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==
 
 string-width@^4.1.0, string-width@^4.2.0:
   version "4.2.3"
