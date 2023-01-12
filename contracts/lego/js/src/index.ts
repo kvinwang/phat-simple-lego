@@ -11,7 +11,6 @@ interface Named {
 
 interface ActionLog extends Named {
   cmd: 'log'
-  config?: string
 }
 
 interface ActionEval extends Named {
