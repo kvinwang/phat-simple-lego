@@ -16,6 +16,7 @@ async function initChain(devphase: any): Promise<void> {
                 stdio: 'inherit',
                 cwd: './setup',
                 env: {
+                    ...process.env,
                     'ENDPOINT': devphase.options.nodeUrl,
                     'WORKERS': devphase.options.workerUrl,
                     'GKS': devphase.options.workerUrl,
@@ -38,6 +39,7 @@ async function saveLog(devphase: any, outPath): Promise<void> {
             {
                 cwd: './setup',
                 env: {
+                    ...process.env,
                     'ENDPOINT': devphase.options.nodeUrl,
                     'WORKERS': devphase.options.workerUrl,
                     'CLUSTER': devphase.options.clusterId,
