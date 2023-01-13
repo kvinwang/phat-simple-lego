@@ -5,25 +5,26 @@ import * as scaleCore from '@scale-codec/core'
 const pink = globalThis.pink
 
 type HexString = `0x${string}`
-interface Named {
+interface BaseAction {
   name?: string
+  input?: any
 }
 
-interface ActionLog extends Named {
+interface ActionLog extends BaseAction {
   cmd: 'log'
 }
 
-interface ActionEval extends Named {
+interface ActionEval extends BaseAction {
   cmd: 'eval'
   config: string
 }
 
-interface ActionFetch extends Named {
+interface ActionFetch extends BaseAction {
   cmd: 'fetch'
   config?: string | FetchConfig
 }
 
-interface ActionCall extends Named {
+interface ActionCall extends BaseAction {
   cmd: 'call'
   config: {
     callee: HexString | Uint8Array
@@ -91,7 +92,7 @@ function actionCall (action: ActionCall, input: any): Uint8Array {
   return output
 }
 
-function actionEval (action: ActionEval, input: any): any {
+function actionEval (action: ActionEval, input: any, context: any): any {
   const script = action.config
   if (typeof script !== 'string') {
     throw new Error('Trying to eval non-string')
@@ -110,12 +111,12 @@ function actionEval (action: ActionEval, input: any): any {
   return eval(script)
 }
 
-function runAction (action: Action, input: any): any {
+function runAction (context: any, action: Action, input: any): any {
   switch (action.cmd) {
     case 'call':
       return actionCall(action, input)
     case 'eval':
-      return actionEval(action, input)
+      return actionEval(action, input, context)
     case 'fetch':
       return actionFetch(action, input)
     case 'log':
@@ -127,11 +128,19 @@ function runAction (action: Action, input: any): any {
 
 function pipeline (actions: Action[], initInput: string): void {
   let input: any = initInput
+  let context: any = {}
   for (let i = 0; i < actions.length; i++) {
     const action = actions[i]
+    if (action.input !== undefined) {
+      input = action.input
+    }
     const name = action.name ?? action.cmd
     console.log(`running action [${name}], ${action.cmd}(input=${input})`)
-    input = runAction(action, input)
+    const output = runAction(context, action, input)
+    input = output
+    if (action.name?.length > 0) {
+      context[name] = { output }
+    }
   }
 }
 
