@@ -58,22 +58,13 @@ describe("Run lego actions", () => {
     systemContract = clusterInfo.unwrap().systemContract.toString();
     console.log("system contract:", systemContract);
 
-    legoFactory = await this.devPhase.getFactory(
-      ContractType.InkCode,
-      "./artifacts/lego/lego.contract"
-    );
-    qjsFactory = await this.devPhase.getFactory(
-      "IndeterministicInkCode" as any,
-      "./artifacts/qjs/qjs.contract"
-    );
-    sampleOracleFactory = await this.devPhase.getFactory(
-      ContractType.InkCode,
-      "./artifacts/sample_oracle/sample_oracle.contract"
-    );
-    systemFactory = await this.devPhase.getFactory(
-      ContractType.InkCode,
-      `${currentStack}/system.contract`
-    );
+    legoFactory = await this.devPhase.getFactory('lego');
+    qjsFactory = await this.devPhase.getFactory('qjs', {
+      clusterId: this.devPhase.mainClusterId,
+      contractType: "IndeterministicInkCode" as any,
+    });
+    sampleOracleFactory = await this.devPhase.getFactory('sample_oracle');
+    systemFactory = await this.devPhase.getFactory(`${currentStack}/system.contract`);
 
     await qjsFactory.deploy();
     await sampleOracleFactory.deploy();
@@ -94,7 +85,7 @@ describe("Run lego actions", () => {
         qjsFactory.metadata.source.hash
       ),
       alice,
-      'system::setDriver("JsDelegate")'
+      true
     );
 
     await checkUntil(async () => {
@@ -103,7 +94,7 @@ describe("Run lego actions", () => {
         {},
         "JsDelegate"
       );
-      return output.isSome;
+      return !output.isEmpty;
     }, 1000 * 10);
     console.log("Signer:", alice.address.toString());
   });
@@ -137,7 +128,7 @@ describe("Run lego actions", () => {
       ]`;
       const result = await lego.query.run(certAlice, {}, actions_json);
       expect(result.result.isOk).to.be.true;
-      expect(result.output?.valueOf()).to.be.true;
+      expect(!result.output?.valueOf().isEmpty).to.be.true;
     });
   });
 });
