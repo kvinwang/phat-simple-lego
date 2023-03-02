@@ -1,3 +1,6 @@
+# Notice
+This repository is no longer actively maintained and has been archived. A successor repository is available at [shelvenzhou/phat-lego-oracle](https://github.com/shelvenzhou/phat-lego-oracle), which contains the latest updates and improvements.
+
 # Simple LEGO
 This is a demo phat contract that shows how to implement a LEGO-like app in JavaScript.
 
