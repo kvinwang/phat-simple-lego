@@ -6,16 +6,16 @@ This is a demo phat contract that shows how to implement a LEGO-like app in Java
 
 The main logic is in the file [contracts/lego/js/src/index.ts](contracts/lego/js/src/index.ts)
 
-See [here](tests/legoActions.test.ts#L129) for usage examples.
+See [here](tests/legoActions.test.ts#L119) for usage examples.
 
 ## How to play
 
 ```bash
-git clone https://github.com/kvinwang/phat-simple-lego.git --recursive
+git clone https://github.com/kvinwang/phat-simple-lego.git
 cd phat-simple-lego
 yarn
-yarn devphase compile --release # optional
-yarn devphase test
+yarn devphase contract compile # this fails temporally since devphase does not support ink 4
+yarn devphase contract test
 ```
 
 ## Development
@@ -26,7 +26,7 @@ If you modified the `contracts/lego/js/src/index.ts`, you need to run the follow
 cd contracts/lego/js/
 yarn && yarn build
 cd -
-yarn devphase compile --release
+yarn devphase contract compile
 ```
 
 Tell me if you get into any trouble.
