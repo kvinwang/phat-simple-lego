@@ -1,101 +1,105 @@
-import './polyfills.js'
-import '@phala/pink-env'
-import * as scaleCore from '@scale-codec/core'
+import "./polyfills.js";
+import "@phala/pink-env";
+import * as scaleCore from "@scale-codec/core";
 
-const pink = globalThis.pink
+const pink = globalThis.pink;
 
-type HexString = `0x${string}`
+type HexString = `0x${string}`;
 interface BaseAction {
-  name?: string
-  input?: any
+  name?: string;
+  input?: any;
 }
 
 interface ActionLog extends BaseAction {
-  cmd: 'log'
+  cmd: "log";
 }
 
 interface ActionEval extends BaseAction {
-  cmd: 'eval'
-  config: string
+  cmd: "eval";
+  config: string;
 }
 
 interface ActionFetch extends BaseAction {
-  cmd: 'fetch'
-  config?: string | FetchConfig
+  cmd: "fetch";
+  config?: string | FetchConfig;
 }
 
 interface ActionCall extends BaseAction {
-  cmd: 'call'
+  cmd: "call";
   config: {
-    callee: HexString | Uint8Array
-    selector: number
-  }
+    callee: HexString | Uint8Array;
+    selector: number;
+  };
 }
 
 interface FetchConfig {
-  url?: string
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'HEAD' | 'OPTIONS'
-  headers?: Record<string, string>
-  body?: string | Uint8Array
-  allowNon2xx?: boolean
-  returnTextBody?: boolean
+  url?: string;
+  method?: "GET" | "POST" | "PUT" | "DELETE" | "HEAD" | "OPTIONS";
+  headers?: Record<string, string>;
+  body?: string | Uint8Array;
+  allowNon2xx?: boolean;
+  returnTextBody?: boolean;
 }
 
-type Action = ActionLog | ActionEval | ActionFetch | ActionCall
+type Action = ActionLog | ActionEval | ActionFetch | ActionCall;
 
-function actionFetch (action: ActionFetch, input: any): any {
-  let base: FetchConfig
-  if (typeof action.config === 'string') {
-    base = { url: action.config }
+function actionFetch(action: ActionFetch, input: any): any {
+  let base: FetchConfig;
+  if (typeof action.config === "string") {
+    base = { url: action.config };
   } else {
-    base = action.config
+    base = action.config;
   }
-  let req: FetchConfig = {}
-  if (typeof input === 'string' || typeof input === 'object') {
-    if (typeof input === 'string' && input.length > 0) {
-      req = { url: input }
+  let req: FetchConfig = {};
+  if (typeof input === "string" || typeof input === "object") {
+    if (typeof input === "string" && input.length > 0) {
+      req = { url: input };
     } else {
-      req = input
+      req = input;
     }
   }
   req = {
     ...base,
-    ...req
+    ...req,
+  };
+  const { url, method, headers, body, returnTextBody } = req;
+  if (typeof url !== "string") {
+    throw new Error("fetching with invalid url");
   }
-  const { url, method, headers, body, returnTextBody } = req
-  if (typeof url !== 'string') {
-    throw new Error(
-      'fetching with invalid url'
-    )
-  }
-  const response = pink.httpRequest({ url, method, headers, body, returnTextBody })
+  const response = pink.httpRequest({
+    url,
+    method,
+    headers,
+    body,
+    returnTextBody,
+  });
   if (
     !req.allowNon2xx &&
-      (response.statusCode < 200 || response.statusCode >= 300)
+    (response.statusCode < 200 || response.statusCode >= 300)
   ) {
     throw new Error(
-        `http request failed with status code ${response.statusCode}`
-    )
+      `http request failed with status code ${response.statusCode}`
+    );
   }
-  return response
+  return response;
 }
 
-function actionCall (action: ActionCall, input: any): Uint8Array {
-  const args = action.config
+function actionCall(action: ActionCall, input: any): Uint8Array {
+  const args = action.config;
   if (!(input instanceof Uint8Array)) {
-    throw new Error('call contract input must be a Uint8Array')
+    throw new Error("call contract input must be a Uint8Array");
   }
   const output = pink.invokeContract({
     ...args,
-    input
-  })
-  return output
+    input,
+  });
+  return output;
 }
 
-function actionEval (action: ActionEval, input: any, context: any): any {
-  const script = action.config
-  if (typeof script !== 'string') {
-    throw new Error('Trying to eval non-string')
+function actionEval(action: ActionEval, input: any, context: any): any {
+  const script = action.config;
+  if (typeof script !== "string") {
+    throw new Error("Trying to eval non-string");
   }
   const scale = {
     encode: scaleCore.WalkerImpl.encode,
@@ -106,48 +110,48 @@ function actionEval (action: ActionEval, input: any, context: any): any {
     encodeUint8Vec: scaleCore.encodeUint8Vec,
     encodeStr: scaleCore.encodeStr,
     createStructEncoder: scaleCore.createStructEncoder,
-    createEnumEncoder: scaleCore.createEnumEncoder
-  }
-  return eval(script)
+    createEnumEncoder: scaleCore.createEnumEncoder,
+  };
+  return eval(script);
 }
 
-function runAction (context: any, action: Action, input: any): any {
+function runAction(context: any, action: Action, input: any): any {
   switch (action.cmd) {
-    case 'call':
-      return actionCall(action, input)
-    case 'eval':
-      return actionEval(action, input, context)
-    case 'fetch':
-      return actionFetch(action, input)
-    case 'log':
-      return input
+    case "call":
+      return actionCall(action, input);
+    case "eval":
+      return actionEval(action, input, context);
+    case "fetch":
+      return actionFetch(action, input);
+    case "log":
+      return input;
     default:
-      throw new Error(`unknown action: ${(<any>action).cmd}`)
+      throw new Error(`unknown action: ${(<any>action).cmd}`);
   }
 }
 
-function pipeline (actions: Action[], initInput: string): void {
-  let input: any = initInput
-  let context: any = {}
+function pipeline(actions: Action[], initInput: string): void {
+  let input: any = initInput;
+  let context: any = {};
   for (let i = 0; i < actions.length; i++) {
-    const action = actions[i]
+    const action = actions[i];
     if (action.input !== undefined) {
-      input = action.input
+      input = action.input;
     }
-    const name = action.name ?? action.cmd
-    console.log(`running action [${name}], ${action.cmd}(input=${input})`)
-    const output = runAction(context, action, input)
-    input = output
+    const name = action.name ?? action.cmd;
+    console.log(`running action [${name}], ${action.cmd}(input=${input})`);
+    const output = runAction(context, action, input);
+    input = output;
     if (action.name?.length > 0) {
-      context[name] = { output }
+      context[name] = { output };
     }
   }
 }
 
 (function () {
-  console.log(`Actions: ${scriptArgs[0]}`)
+  console.log(`Actions: ${scriptArgs[0]}`);
   // TODO: Is there a simple way to dynamic validate the external json value against the ts type definition?
-  const actions = JSON.parse(scriptArgs[0])
-  const input = scriptArgs[1]
-  pipeline(actions, input)
-})()
+  const actions = JSON.parse(scriptArgs[0]);
+  const input = scriptArgs[1];
+  pipeline(actions, input);
+})();
