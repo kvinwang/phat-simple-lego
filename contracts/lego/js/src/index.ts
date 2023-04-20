@@ -1,6 +1,4 @@
-import "./polyfills.js";
 import "@phala/pink-env";
-import * as scaleCore from "@scale-codec/core";
 
 const pink = globalThis.pink;
 
@@ -101,17 +99,6 @@ function actionEval(action: ActionEval, input: any, context: any): any {
   if (typeof script !== "string") {
     throw new Error("Trying to eval non-string");
   }
-  const scale = {
-    encode: scaleCore.WalkerImpl.encode,
-    encodeU128: scaleCore.encodeU128,
-    encodeU64: scaleCore.encodeU64,
-    encodeU32: scaleCore.encodeU32,
-    encodeU16: scaleCore.encodeU16,
-    encodeUint8Vec: scaleCore.encodeUint8Vec,
-    encodeStr: scaleCore.encodeStr,
-    createStructEncoder: scaleCore.createStructEncoder,
-    createEnumEncoder: scaleCore.createEnumEncoder,
-  };
   return eval(script);
 }
 
