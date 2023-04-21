@@ -1,10 +1,10 @@
 {
   "source": {
-    "hash": "0x8237f6888f54384079e4a88e243b5b2bfc8a1656a10cb22f6ed76e8d4d702bcb",
-    "language": "ink! 4.0.1",
-    "compiler": "rustc 1.70.0-nightly",
+    "hash": "0xa5f046f120cd3f30839e8f77502e391cf466ce9b6b884bd488cb442bf1d5967a",
+    "language": "ink! 4.1.0",
+    "compiler": "rustc 1.67.0-nightly",
     "build_info": {
-      "build_mode": "Release",
+      "build_mode": "Debug",
       "cargo_contract_version": "2.0.0",
       "rust_toolchain": "nightly-x86_64-unknown-linux-gnu",
       "wasm_opt_settings": {
@@ -14,7 +14,7 @@
     }
   },
   "contract": {
-    "name": "qjs",
+    "name": "sample_oracle",
     "version": "0.1.0",
     "authors": [
       "[your_name] <[your_email]>"
@@ -50,70 +50,27 @@
       {
         "args": [
           {
-            "label": "js",
+            "label": "config",
             "type": {
               "displayName": [
-                "String"
+                "Config"
               ],
               "type": 3
             }
-          },
-          {
-            "label": "args",
-            "type": {
-              "displayName": [
-                "Vec"
-              ],
-              "type": 4
-            }
           }
         ],
         "docs": [],
-        "label": "eval",
-        "mutates": false,
+        "label": "config",
+        "mutates": true,
         "payable": false,
         "returnType": {
           "displayName": [
             "ink",
             "MessageResult"
           ],
-          "type": 5
+          "type": 6
         },
-        "selector": "0x49bfcd24"
-      },
-      {
-        "args": [
-          {
-            "label": "bytecode",
-            "type": {
-              "displayName": [
-                "Vec"
-              ],
-              "type": 8
-            }
-          },
-          {
-            "label": "args",
-            "type": {
-              "displayName": [
-                "Vec"
-              ],
-              "type": 4
-            }
-          }
-        ],
-        "docs": [],
-        "label": "eval_bytecode",
-        "mutates": false,
-        "payable": false,
-        "returnType": {
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ],
-          "type": 5
-        },
-        "selector": "0xbf0ec203"
+        "selector": "0x70714744"
       }
     ]
   },
@@ -122,7 +79,7 @@
       "layout": {
         "struct": {
           "fields": [],
-          "name": "QuickJS"
+          "name": "SampleOracle"
         }
       },
       "root_key": "0x00000000"
@@ -202,17 +159,33 @@
       "id": 3,
       "type": {
         "def": {
-          "primitive": "str"
-        }
+          "composite": {
+            "fields": [
+              {
+                "name": "rpc",
+                "type": 4,
+                "typeName": "String"
+              },
+              {
+                "name": "price",
+                "type": 5,
+                "typeName": "u128"
+              }
+            ]
+          }
+        },
+        "path": [
+          "sample_oracle",
+          "sample_oracle",
+          "Config"
+        ]
       }
     },
     {
       "id": 4,
       "type": {
         "def": {
-          "sequence": {
-            "type": 3
-          }
+          "primitive": "str"
         }
       }
     },
@@ -220,12 +193,20 @@
       "id": 5,
       "type": {
         "def": {
+          "primitive": "u128"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "type": {
+        "def": {
           "variant": {
             "variants": [
               {
                 "fields": [
                   {
-                    "type": 6
+                    "type": 4
                   }
                 ],
                 "index": 0,
@@ -246,7 +227,7 @@
         "params": [
           {
             "name": "T",
-            "type": 6
+            "type": 4
           },
           {
             "name": "E",
@@ -256,106 +237,6 @@
         "path": [
           "Result"
         ]
-      }
-    },
-    {
-      "id": 6,
-      "type": {
-        "def": {
-          "variant": {
-            "variants": [
-              {
-                "fields": [
-                  {
-                    "type": 7
-                  }
-                ],
-                "index": 0,
-                "name": "Ok"
-              },
-              {
-                "fields": [
-                  {
-                    "type": 3
-                  }
-                ],
-                "index": 1,
-                "name": "Err"
-              }
-            ]
-          }
-        },
-        "params": [
-          {
-            "name": "T",
-            "type": 7
-          },
-          {
-            "name": "E",
-            "type": 3
-          }
-        ],
-        "path": [
-          "Result"
-        ]
-      }
-    },
-    {
-      "id": 7,
-      "type": {
-        "def": {
-          "variant": {
-            "variants": [
-              {
-                "fields": [
-                  {
-                    "type": 3,
-                    "typeName": "String"
-                  }
-                ],
-                "index": 0,
-                "name": "String"
-              },
-              {
-                "fields": [
-                  {
-                    "type": 8,
-                    "typeName": "Vec<u8>"
-                  }
-                ],
-                "index": 1,
-                "name": "Bytes"
-              },
-              {
-                "index": 2,
-                "name": "Undefined"
-              }
-            ]
-          }
-        },
-        "path": [
-          "qjs",
-          "qjs",
-          "Output"
-        ]
-      }
-    },
-    {
-      "id": 8,
-      "type": {
-        "def": {
-          "sequence": {
-            "type": 9
-          }
-        }
-      }
-    },
-    {
-      "id": 9,
-      "type": {
-        "def": {
-          "primitive": "u8"
-        }
       }
     }
   ],

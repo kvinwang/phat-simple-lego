@@ -6,7 +6,7 @@ import {
   ContractFactory,
   RuntimeContext,
   TxHandler,
-} from "devphase";
+} from "@devphase/service";
 import { Lego } from "@/typings/Lego";
 import { SampleOracle } from "@/typings/SampleOracle";
 import { PinkSystem } from "@/typings/PinkSystem";
@@ -45,35 +45,28 @@ describe("Run lego actions", () => {
   let certAlice: PhalaSdk.CertificateData;
   const txConf = { gasLimit: "10000000000000", storageDepositLimit: null };
   let currentStack: string;
-  let systemContract: string;
 
   before(async function () {
     currentStack = (await RuntimeContext.getSingleton()).paths.currentStack;
     console.log("clusterId:", this.devPhase.mainClusterId);
     console.log(`currentStack: ${currentStack}`);
+
+    system = await this.devPhase.getSystemContract(this.devPhase.mainClusterId);
+
     const clusterInfo =
-      await this.devPhase.api.query.phalaFatContracts.clusters(
+      await this.devPhase.api.query.phalaPhatContracts.clusters(
         this.devPhase.mainClusterId
       );
-    systemContract = clusterInfo.unwrap().systemContract.toString();
-    console.log("system contract:", systemContract);
 
-    legoFactory = await this.devPhase.getFactory(
-      ContractType.InkCode,
-      "./artifacts/lego/lego.contract"
-    );
-    qjsFactory = await this.devPhase.getFactory(
-      "IndeterministicInkCode" as any,
-      "./artifacts/qjs/qjs.contract"
-    );
-    sampleOracleFactory = await this.devPhase.getFactory(
-      ContractType.InkCode,
-      "./artifacts/sample_oracle/sample_oracle.contract"
-    );
-    systemFactory = await this.devPhase.getFactory(
-      ContractType.InkCode,
-      `${currentStack}/system.contract`
-    );
+    legoFactory = await this.devPhase.getFactory("lego", {
+      contractType: ContractType.InkCode,
+    });
+    qjsFactory = await this.devPhase.getFactory("qjs", {
+      contractType: "IndeterministicInkCode" as any,
+    });
+    sampleOracleFactory = await this.devPhase.getFactory("sample_oracle", {
+      contractType: ContractType.InkCode,
+    });
 
     await qjsFactory.deploy();
     await sampleOracleFactory.deploy();
@@ -86,7 +79,6 @@ describe("Run lego actions", () => {
       pair: alice,
     });
 
-    system = (await systemFactory.attach(systemContract)) as any;
     await TxHandler.handle(
       system.tx["system::setDriver"](
         { gasLimit: "10000000000000" },
@@ -103,7 +95,7 @@ describe("Run lego actions", () => {
         {},
         "JsDelegate"
       );
-      return output.isSome;
+      return output?.asOk?.isSome;
     }, 1000 * 10);
     console.log("Signer:", alice.address.toString());
   });
@@ -121,23 +113,34 @@ describe("Run lego actions", () => {
 
     it("can run actions", async function () {
       const callee = sampleOracle.address.toHex();
-      const selector = 0x68af3241;
+      console.log("callee:", callee);
+
       function cfg(o: object) {
         return JSON.stringify(o);
       }
-      const actions_json = `[
+      const actions = `[
             {"cmd": "fetch", "config": ${cfg({
               returnTextBody: true,
               url: "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=BTC,USD,EUR",
             })}},
-            {"cmd": "eval", "config": "BigInt(Math.round(JSON.parse(input.body).USD * 1000000))"},
-            {"cmd": "eval", "config": "scale.encode(input, scale.encodeU128)"},
-            {"cmd": "call", "config": ${cfg({ callee, selector })}},
-            {"cmd": "log"}
+            {"cmd": "eval", "name": "parse_response", "config": "BigInt(Math.round(JSON.parse(input.body).USD * 1000000))"},
+            {"cmd": "eval", "name": "reshape_input", "config": "({rpc: 'http://rpc.kvin.wang', price: input})" },
+            {"cmd": "scale", "name": "scale_encode", "config": ${cfg({ subcmd: "encode", type: 3 })}},
+            {"cmd": "call", "name": "call_contract", "config": ${cfg({ callee, selector: 0x70714744 })}},
+            {"cmd": "scale", "name": "scale_decode", "config": ${cfg({ subcmd: "decode", type: 6 })}},
+            {"cmd": "eval", "name": "print_result", "config": "console.log('contract output:', JSON.stringify(input))"}
       ]`;
-      const result = await lego.query.run(certAlice, {}, actions_json);
+      const types = `
+<Ok:1,Err:2>
+()
+<CouldNotReadInput::1>
+{rpc:4,price:5}
+#str
+#u128
+<Ok:4,Err:2>
+`;
+      const result = await lego.query.run(certAlice, {}, actions, types);
       expect(result.result.isOk).to.be.true;
-      expect(result.output?.valueOf()).to.be.true;
     });
   });
 });
