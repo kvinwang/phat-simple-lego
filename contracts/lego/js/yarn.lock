@@ -116,10 +116,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@phala/pink-env@^1.0.5":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@phala/pink-env/-/pink-env-1.0.5.tgz#435fc86f2be9c91cb24f375ce0a5af2e086efd5c"
-  integrity sha512-Ure+QsnNoxteZ//sVGivUKZYX5l1BRkpmiWo2cbMoIaVjPcUBHlmpM7jXGwxiFih9siiIjvJRQjhvIcubVWLEw==
+"@phala/pink-env@^1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@phala/pink-env/-/pink-env-1.0.6.tgz#6ffd19c35bfe6e47d132bf80cfe003b2aef53a59"
+  integrity sha512-Ub0gNLYVR6skBrjaaIpL26bAgsD4hEBOGLnK84Qi8cmXKO/PabXf0iARShkfwDoyPu3t++P+I0Kqt4mCAC5ibg==
 
 "@sindresorhus/is@^4.0.0":
   version "4.6.0"
