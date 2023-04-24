@@ -43,7 +43,6 @@ describe("Run lego actions", () => {
   let api: ApiPromise;
   let alice: KeyringPair;
   let certAlice: PhalaSdk.CertificateData;
-  const txConf = { gasLimit: "10000000000000", storageDepositLimit: null };
   let currentStack: string;
 
   before(async function () {
@@ -53,16 +52,11 @@ describe("Run lego actions", () => {
 
     system = await this.devPhase.getSystemContract(this.devPhase.mainClusterId);
 
-    const clusterInfo =
-      await this.devPhase.api.query.phalaPhatContracts.clusters(
-        this.devPhase.mainClusterId
-      );
-
     legoFactory = await this.devPhase.getFactory("lego", {
       contractType: ContractType.InkCode,
     });
     qjsFactory = await this.devPhase.getFactory("qjs", {
-      contractType: "IndeterministicInkCode" as any,
+      contractType: ContractType.IndeterministicInkCode,
     });
     sampleOracleFactory = await this.devPhase.getFactory("sample_oracle", {
       contractType: ContractType.InkCode,

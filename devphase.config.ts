@@ -1,4 +1,32 @@
 import { ProjectConfigOptions } from "@devphase/service";
+import { spawn } from "child_process";
+
+const fs = require("fs");
+
+async function saveLog(devphase: any, outPath, driverDir): Promise<void> {
+  console.log(
+    "######################## Saving worker logs ########################"
+  );
+  const logging = fs.createWriteStream(outPath, { flags: "w" });
+  await new Promise((resolve: (_: void) => void) => {
+    const readLog = spawn("node", ["read-log.js"], {
+      cwd: "./scripts",
+      env: {
+        ...process.env,
+        ENDPOINT: devphase.networkConfig.nodeUrl,
+        WORKERS: devphase.networkConfig.workerUrl,
+        CLUSTER: devphase.mainClusterId,
+        DRIVER_DIR: driverDir,
+      },
+    });
+    readLog.stdout.pipe(logging);
+    readLog.stderr.pipe(logging);
+    readLog.on("exit", (code) => {
+      console.log("saveLog script exited with code", code);
+      resolve();
+    });
+  });
+}
 
 const config: ProjectConfigOptions = {
   directories: {
@@ -90,6 +118,12 @@ const config: ProjectConfigOptions = {
       },
       teardown: {
         // custom teardown procedure callback ; (devPhase) => Promise<void>
+        custom: (devphase) =>
+          saveLog(
+            devphase,
+            `${devphase.runtimeContext.paths.currentLog}/logserver.log`,
+            devphase.runtimeContext.paths.currentStack,
+          ),
         timeout: 10 * 1000,
       },
     },
