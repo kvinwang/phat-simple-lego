@@ -1,60 +1,77 @@
-import { ScaleEncoder, ScaleDecoder, TypeRegistry } from "@phala/pink-env";
+import "@phala/pink-env";
+import { TypeRegistry } from "@phala/pink-env";
 
-const pink = globalThis.pink;
-const $ = pink.SCALE;
-
-type HexString = `0x${string}`;
-interface BaseAction {
-  name?: string;
-  input?: any;
+declare global {
+  var debugWorkflow: boolean;
 }
-
-interface ActionLog extends BaseAction {
-  cmd: "log";
-}
-
-interface ActionEval extends BaseAction {
-  cmd: "eval";
-  config: string;
-}
-
-interface ActionFetch extends BaseAction {
-  cmd: "fetch";
-  config?: string | FetchConfig;
-}
-
-interface ActionCall extends BaseAction {
-  cmd: "call";
-  config: {
-    callee: HexString | Uint8Array;
-    selector: number;
-  };
-}
-
-interface ActionScale extends BaseAction {
-  cmd: "scale";
-  config: {
-    subcmd: "encode" | "decode";
-    type: number[] | number;
-  };
-}
-
-interface FetchConfig {
-  url?: string;
-  method?: "GET" | "POST" | "PUT" | "DELETE" | "HEAD" | "OPTIONS";
-  headers?: Record<string, string>;
-  body?: string | Uint8Array;
-  allowNon2xx?: boolean;
-  returnTextBody?: boolean;
-}
-
-type Action = ActionLog | ActionEval | ActionFetch | ActionCall | ActionScale;
 
 function doEval(script: string, input: any, context: any): any {
+  function numToUint8Array32(num: number) {
+    let arr = new Uint8Array(32);
+    for (let i = 0; i < 32; i++) {
+      arr[i] = num % 256;
+      num = Math.floor(num / 256);
+    }
+    return arr;
+  }
   return eval(script);
 }
 
 (function () {
+  const $pink = globalThis.pink;
+  const $ = $pink.SCALE;
+
+  type HexString = `0x${string}`;
+  interface BaseAction {
+    name?: string;
+    input?: any;
+  }
+
+  interface ActionLog extends BaseAction {
+    cmd: "log";
+  }
+
+  interface ActionEval extends BaseAction {
+    cmd: "eval";
+    config: string;
+  }
+
+  interface ActionFetch extends BaseAction {
+    cmd: "fetch";
+    config?: string | FetchConfig;
+  }
+
+  interface ActionCall extends BaseAction {
+    cmd: "call";
+    config: {
+      callee: HexString | Uint8Array;
+      selector: number;
+      codec?: {
+        inputs: number[];
+        output: number;
+      };
+    };
+  }
+
+  interface FetchConfig {
+    url?: string;
+    method?: "GET" | "POST" | "PUT" | "DELETE" | "HEAD" | "OPTIONS";
+    headers?: Record<string, string>;
+    body?: string | Uint8Array;
+    allowNon2xx?: boolean;
+    returnTextBody?: boolean;
+  }
+
+  interface ActionScale extends BaseAction {
+    cmd: "scale";
+    config: {
+      subcmd: "encode" | "decode";
+      type: number[] | number;
+    };
+  }
+
+  type Action = ActionLog | ActionEval | ActionFetch | ActionCall | ActionScale;
+
   function actionFetch(action: ActionFetch, input: any): any {
     let base: FetchConfig;
     if (typeof action.config === "string") {
@@ -78,23 +95,64 @@ function doEval(script: string, input: any, context: any): any {
     if (typeof url !== "string") {
       throw new Error("invalid url");
     }
-    const response = pink.httpRequest({
+    const response = $pink.httpRequest({
       url,
       method,
       headers,
       body,
       returnTextBody,
     });
-    const statusCode = response.statusCode;
     if (
       !req.allowNon2xx &&
-      (statusCode < 200 || statusCode >= 300)
+      (response.statusCode < 200 || response.statusCode >= 300)
     ) {
-      throw new Error(
-        `http error: ${statusCode}`
-      );
+      throw new Error(`http request failed: ${response.statusCode}`);
     }
     return response;
+  }
+
+  function encode(
+    input: any,
+    type: number | number[],
+    typeRegistry: TypeRegistry
+  ) {
+    const codec = $.codec(type, typeRegistry);
+    return codec.encode(input);
+  }
+
+  function decode(
+    input: any,
+    type: number | number[],
+    typeRegistry: TypeRegistry
+  ) {
+    const codec = $.codec(type, typeRegistry);
+    return codec.decode(input);
+  }
+
+  function actionCall(
+    action: ActionCall,
+    input: any,
+    typeRegistry: TypeRegistry
+  ): Uint8Array {
+    const args = action.config;
+    const codec = action.config.codec;
+    if (codec?.inputs !== undefined) {
+      input = encode(input, codec.inputs, typeRegistry);
+      if (debugWorkflow) {
+        console.log(`encoded call input: ${hex(input)}`);
+      }
+    }
+    let output = $pink.invokeContract({
+      ...args,
+      input,
+    });
+    if (debugWorkflow) {
+      console.log(`call output: ${repr(output)}`);
+    }
+    if (codec?.output !== undefined) {
+      output = decode(output, codec.output, typeRegistry);
+    }
+    return output;
   }
 
   function actionEval(action: ActionEval, input: any, context: any): any {
@@ -105,52 +163,17 @@ function doEval(script: string, input: any, context: any): any {
     return doEval(script, input, context);
   }
 
-  function actionCall(action: ActionCall, input: any): Uint8Array {
-    const args = action.config;
-    if (!(input instanceof Uint8Array)) {
-      throw new Error("call contract input must be a Uint8Array");
-    }
-    const output = pink.invokeContract({
-      ...args,
-      input,
-    });
-    return output;
-  }
-
-  function newEnc(
-    type: number | number[],
-    typeRegistry: TypeRegistry
-  ): ScaleEncoder {
-    if (typeof type === "number") {
-      return $.createEncoderForTypeId(type, typeRegistry);
-    } else {
-      return $.createTupleEncoder(type, typeRegistry);
-    }
-  }
-
-  function newDec(
-    type: number | number[],
-    typeRegistry: TypeRegistry
-  ): ScaleDecoder {
-    if (typeof type === "number") {
-      return $.createDecoderForTypeId(type, typeRegistry);
-    } else {
-      return $.createTupleDecoder(type, typeRegistry);
-    }
-  }
-
   function actionScale(
     action: ActionScale,
     input: any,
     typeRegistry: TypeRegistry
   ): any {
     const { subcmd, type } = action.config;
+    const codec = $.codec(type, typeRegistry);
     if (subcmd === "encode") {
-      const encoder = newEnc(type, typeRegistry);
-      return $.encode(input, encoder);
+      return codec.encode(input);
     } else if (subcmd === "decode") {
-      const decoder = newDec(type, typeRegistry);
-      return $.decode(input, decoder);
+      return codec.decode(input);
     } else {
       throw new Error(`unknown scale subcmd: ${subcmd}`);
     }
@@ -159,7 +182,7 @@ function doEval(script: string, input: any, context: any): any {
   function runAction(context: any, action: Action, input: any): any {
     switch (action.cmd) {
       case "call":
-        return actionCall(action, input);
+        return actionCall(action, input, context.typeRegistry);
       case "eval":
         return actionEval(action, input, context);
       case "fetch":
@@ -173,21 +196,32 @@ function doEval(script: string, input: any, context: any): any {
     }
   }
 
-  function pipeline(actions: Action[], types: string): void {
-    const typeRegistry = $.parseTypes(types);
-    console.log(`typeRegistry: ${JSON.stringify(typeRegistry, null, 2)}`);
+  function pipeline(workflowJson: string): void {
+    const workflow = JSON.parse(workflowJson);
+    const version = workflow.version;
+
+    globalThis.debugWorkflow = workflow.debug || false;
+
+    if (version !== 1) {
+      throw new Error(`unsupported workflow version: ${version}`);
+    }
+    const actions = workflow.actions;
+    const typeRegistry = $.parseTypes(workflow.types);
 
     let input: any = "";
     let context: any = {
       typeRegistry,
     };
+
     for (let i = 0; i < actions.length; i++) {
       const action = actions[i];
       if (action.input !== undefined) {
         input = action.input;
       }
       const name = action.name ?? action.cmd;
-      console.log(`running action [${name}], ${action.cmd}(input=${input})`);
+      if (debugWorkflow) {
+        console.log(`running action [${name}], ${action.cmd}(input=${repr(input)})`);
+      }
       const output = runAction(context, action, input);
       input = output;
       if (action.name?.length > 0) {
@@ -195,11 +229,51 @@ function doEval(script: string, input: any, context: any): any {
       }
     }
   }
-
-  // TODO: Is there a simple way to dynamic validate the external json value against the ts type definition?
-  const actions = scriptArgs[0];
-  const types = scriptArgs[1];
-  console.log(`actions: ${actions}`);
-  console.log(`types: ${types}`);
-  pipeline(JSON.parse(actions), types);
+  pipeline(scriptArgs[0]);
+  console.log("workflow done");
 })();
+
+type AnyObject = {
+  [key: string]: any;
+};
+
+function hex(bytes: Uint8Array | number[]): string {
+  const hexString =
+    "0x" +
+    Array.from(bytes)
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
+  return hexString;
+}
+
+function replaceBnWzStr(obj: any): any {
+  if (typeof obj === "bigint") {
+    return obj.toString();
+  }
+
+  if (obj instanceof Uint8Array) {
+    return hex(obj);
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map((item) => replaceBnWzStr(item));
+  }
+
+  if (typeof obj === "object" && obj !== null) {
+    const newObj: AnyObject = {};
+    for (const [key, value] of Object.entries(obj)) {
+      newObj[key] = replaceBnWzStr(value);
+    }
+    return newObj;
+  }
+
+  return obj;
+}
+
+function repr(obj: any): any {
+  try {
+    return JSON.stringify(replaceBnWzStr(obj));
+  } catch (e) {
+    return obj;
+  }
+}

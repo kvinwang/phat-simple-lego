@@ -23,7 +23,7 @@ export namespace Lego {
     /** */
     namespace ContractQuery {
         export interface Run extends DPT.ContractQuery {
-            (certificateData: PhalaSdk.CertificateData, options: ContractOptions, actions: string, types: string): DPT.CallResult<DPT.CallOutcome<DPT.IJson<Result$4>>>;
+            (certificateData: PhalaSdk.CertificateData, options: ContractOptions, actions: string): DPT.CallResult<DPT.CallOutcome<DPT.IJson<Result$4>>>;
         }
     }
 

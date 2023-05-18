@@ -40,9 +40,9 @@ const config: ProjectConfigOptions = {
   },
   stack: {
     blockTime: 500,
-    version: "nightly-2023-04-19",
+    version: "nightly-2023-05-12",
     node: {
-      port: 39944,
+      port: 9944,
       binary: "{{directories.stacks}}/{{stack.version}}/phala-node",
       workingDir: "{{directories.stacks}}/.data/node",
       envs: {},
@@ -59,7 +59,7 @@ const config: ProjectConfigOptions = {
       timeout: 10000,
     },
     pruntime: {
-      port: 38000, // server port
+      port: 8000, // server port
       binary: "{{directories.stacks}}/{{stack.version}}/pruntime",
       workingDir: "{{directories.stacks}}/.data/pruntime",
       envs: {
@@ -70,6 +70,7 @@ const config: ProjectConfigOptions = {
         "--cores": 0,
         "--address": "0.0.0.0",
         "--port": "{{stack.pruntime.port}}",
+        "--checkpoint-interval": "20",
       },
       timeout: 2000,
     },

@@ -12,6 +12,7 @@ import { SampleOracle } from "@/typings/SampleOracle";
 import { PinkSystem } from "@/typings/PinkSystem";
 
 import "dotenv/config";
+import { loadInkAbi, callCfg } from "./utils";
 
 async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -108,32 +109,44 @@ describe("Run lego actions", () => {
     it("can run actions", async function () {
       const callee = sampleOracle.address.toHex();
       console.log("callee:", callee);
+      console.log("loading ink abi...");
+      const inkAbi = await loadInkAbi({
+        contracts: ["./artifacts/sample_oracle/sample_oracle.json"],
+        exports: ["config"],
+      });
+      console.log(`abi:\n${JSON.stringify(inkAbi)}`);
 
-      function cfg(o: object) {
-        return JSON.stringify(o);
-      }
-      const actions = `[
-            {"cmd": "fetch", "config": ${cfg({
-              returnTextBody: true,
-              url: "https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=BTC,USD,EUR",
-            })}},
-            {"cmd": "eval", "name": "parse_response", "config": "BigInt(Math.round(JSON.parse(input.body).USD * 1000000))"},
-            {"cmd": "eval", "name": "reshape_input", "config": "({rpc: 'http://rpc.kvin.wang', price: input})" },
-            {"cmd": "scale", "name": "scale_encode", "config": ${cfg({ subcmd: "encode", type: 3 })}},
-            {"cmd": "call", "name": "call_contract", "config": ${cfg({ callee, selector: 0x70714744 })}},
-            {"cmd": "scale", "name": "scale_decode", "config": ${cfg({ subcmd: "decode", type: 6 })}},
-            {"cmd": "eval", "name": "print_result", "config": "console.log('contract output:', JSON.stringify(input))"}
-      ]`;
-      const types = `
-<Ok:1,Err:2>
-()
-<CouldNotReadInput::1>
-{rpc:4,price:5}
-#str
-#u128
-<Ok:4,Err:2>
-`;
-      const result = await lego.query.run(certAlice, {}, actions, types);
+      const test_input = {
+        rpc: "ws://foo.bar",
+        price: { Some: 42 },
+        compat_u32: 1234,
+        enums: ["Foo", { Bar: 123 }, { Baz: { a: 1, b: 2 } }],
+        result1: [{ Ok: 123 }, { Err: "Error message" }],
+        result2: [{ Ok: [] }, { Err: "Error message" }],
+        tuple0: [],
+        tuple1: [123],
+        arr: [1, 2],
+        u8arr: "0x0102",
+        u8vec: "0x0203",
+      };
+
+      const workflow = JSON.stringify({
+        version: 1,
+        debug: true,
+        types: inkAbi.typeRegistry,
+        actions: [
+          {
+            cmd: "call",
+            input: [test_input],
+            config: callCfg(callee, inkAbi.contracts.sample_oracle.config),
+          },
+          { cmd: "eval", config: "[input.Ok]" },
+          { cmd: "log" },
+        ],
+      });
+
+      console.log(`workflow:\n${workflow}`);
+      const result = await lego.query.run(certAlice, {}, workflow);
       expect(result.result.isOk).to.be.true;
     });
   });
