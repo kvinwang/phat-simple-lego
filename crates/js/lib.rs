@@ -31,7 +31,6 @@ pub fn eval(script: &str, args: &[String]) -> Result<Output, String> {
         .returns::<Result<Result<Output, String>, ink::LangError>>()
         .invoke()
         .expect("Failed to invoke delegate call");
-    pink::info!("eval result: {result:?}");
     result
 }
 
