@@ -9,7 +9,7 @@ env:
 jobs:
   emit-source-info:
     name: Source information
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
@@ -31,9 +31,9 @@ jobs:
           name: Source
           path: source.zip
 
-  build-contract:
-    name: Build contract
-    runs-on: ubuntu-20.04
+  build-contracts:
+    name: Build contracts
+    runs-on: ubuntu-latest
     steps:
       - name: Install Rust toolchain
         run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
