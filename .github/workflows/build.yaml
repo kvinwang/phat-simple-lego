@@ -1,4 +1,4 @@
-name: Build contracts - Witness
+name: Build contracts - Witnessed
 
 on:
   workflow_dispatch:
