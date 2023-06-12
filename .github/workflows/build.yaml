@@ -23,7 +23,7 @@ jobs:
         run: zip -r source.zip source
 
       - name: Show the hash of the source as notation
-        run: echo "::notice title=witness.sourceCodeHash::$(sha256sum source.zip | cut -d ' ' -f 1)"
+        run: echo "::notice title=witness.sourceCodeHash::0x$(sha256sum source.zip | cut -d ' ' -f 1)"
 
       - name: Uplaod source code
         uses: actions/upload-artifact@v2
@@ -46,10 +46,10 @@ jobs:
           submodules: true
 
       - name: Build contracts
-        run: ./witness-build
+        run: ./witnessed-build
 
       - name: Upload the contract
         uses: actions/upload-artifact@v2
         with:
           name: Contracts
-          path: .witness/*
+          path: .witness/*.zip
