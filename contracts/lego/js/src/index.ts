@@ -95,13 +95,15 @@ function doEval(script: string, input: any, context: any): any {
     if (typeof url !== "string") {
       throw new Error("invalid url");
     }
-    const response = $pink.httpRequest({
+    console.log("calling batchHttpRequest");
+    const response = $pink.batchHttpRequest([{
       url,
       method,
       headers,
       body,
       returnTextBody,
-    });
+    }], 5000)[0];
+    console.log(`calling batchHttpRequest response: ${response.body.length}`);
     if (
       !req.allowNon2xx &&
       (response.statusCode < 200 || response.statusCode >= 300)

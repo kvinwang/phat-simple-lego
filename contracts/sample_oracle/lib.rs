@@ -28,7 +28,6 @@ mod sample_oracle {
     pub struct Config {
         rpc: String,
         price: Option<u128>,
-        #[codec(compact)]
         compat_u32: u32,
         enums: Vec<Enum>,
         result1: [Result<u32, String>; 2],

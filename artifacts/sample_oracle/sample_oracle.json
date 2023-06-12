@@ -1,11 +1,11 @@
 {
   "source": {
-    "hash": "0x50a3806d5421b883d275f0f42582d3165fa572f586f5b39547b1f2ea42892d15",
+    "hash": "0xde485c60cd24b68ec00f3c545131464c42c0bcab8a1561e829b2b4822341a46e",
     "language": "ink! 4.1.0",
     "compiler": "rustc 1.67.0-nightly",
     "build_info": {
       "build_mode": "Debug",
-      "cargo_contract_version": "2.0.0",
+      "cargo_contract_version": "2.2.1",
       "rust_toolchain": "nightly-x86_64-unknown-linux-gnu",
       "wasm_opt_settings": {
         "keep_debug_symbols": false,
@@ -68,7 +68,7 @@
             "ink",
             "MessageResult"
           ],
-          "type": 20
+          "type": 19
         },
         "selector": "0x70714744"
       }
@@ -178,17 +178,17 @@
               },
               {
                 "name": "enums",
-                "type": 9,
+                "type": 8,
                 "typeName": "Vec<Enum>"
               },
               {
                 "name": "result1",
-                "type": 11,
+                "type": 10,
                 "typeName": "[Result<u32, String>; 2]"
               },
               {
                 "name": "result2",
-                "type": 13,
+                "type": 12,
                 "typeName": "[Result<(), String>; 2]"
               },
               {
@@ -198,22 +198,22 @@
               },
               {
                 "name": "tuple1",
-                "type": 15,
+                "type": 14,
                 "typeName": "(u32,)"
               },
               {
                 "name": "arr",
-                "type": 16,
+                "type": 15,
                 "typeName": "[u32; 2]"
               },
               {
                 "name": "u8arr",
-                "type": 17,
+                "type": 16,
                 "typeName": "[u8; 2]"
               },
               {
                 "name": "u8vec",
-                "type": 19,
+                "type": 18,
                 "typeName": "Vec<u8>"
               }
             ]
@@ -279,9 +279,7 @@
       "id": 7,
       "type": {
         "def": {
-          "compact": {
-            "type": 8
-          }
+          "primitive": "u32"
         }
       }
     },
@@ -289,22 +287,14 @@
       "id": 8,
       "type": {
         "def": {
-          "primitive": "u32"
-        }
-      }
-    },
-    {
-      "id": 9,
-      "type": {
-        "def": {
           "sequence": {
-            "type": 10
+            "type": 9
           }
         }
       }
     },
     {
-      "id": 10,
+      "id": 9,
       "type": {
         "def": {
           "variant": {
@@ -316,7 +306,7 @@
               {
                 "fields": [
                   {
-                    "type": 8,
+                    "type": 7,
                     "typeName": "u32"
                   }
                 ],
@@ -327,12 +317,12 @@
                 "fields": [
                   {
                     "name": "a",
-                    "type": 8,
+                    "type": 7,
                     "typeName": "u32"
                   },
                   {
                     "name": "b",
-                    "type": 8,
+                    "type": 7,
                     "typeName": "u32"
                   }
                 ],
@@ -350,18 +340,18 @@
       }
     },
     {
-      "id": 11,
+      "id": 10,
       "type": {
         "def": {
           "array": {
             "len": 2,
-            "type": 12
+            "type": 11
           }
         }
       }
     },
     {
-      "id": 12,
+      "id": 11,
       "type": {
         "def": {
           "variant": {
@@ -369,7 +359,7 @@
               {
                 "fields": [
                   {
-                    "type": 8
+                    "type": 7
                   }
                 ],
                 "index": 0,
@@ -390,7 +380,7 @@
         "params": [
           {
             "name": "T",
-            "type": 8
+            "type": 7
           },
           {
             "name": "E",
@@ -403,18 +393,18 @@
       }
     },
     {
-      "id": 13,
+      "id": 12,
       "type": {
         "def": {
           "array": {
             "len": 2,
-            "type": 14
+            "type": 13
           }
         }
       }
     },
     {
-      "id": 14,
+      "id": 13,
       "type": {
         "def": {
           "variant": {
@@ -456,12 +446,23 @@
       }
     },
     {
-      "id": 15,
+      "id": 14,
       "type": {
         "def": {
           "tuple": [
-            8
+            7
           ]
+        }
+      }
+    },
+    {
+      "id": 15,
+      "type": {
+        "def": {
+          "array": {
+            "len": 2,
+            "type": 7
+          }
         }
       }
     },
@@ -471,7 +472,7 @@
         "def": {
           "array": {
             "len": 2,
-            "type": 8
+            "type": 17
           }
         }
       }
@@ -480,10 +481,7 @@
       "id": 17,
       "type": {
         "def": {
-          "array": {
-            "len": 2,
-            "type": 18
-          }
+          "primitive": "u8"
         }
       }
     },
@@ -491,22 +489,14 @@
       "id": 18,
       "type": {
         "def": {
-          "primitive": "u8"
-        }
-      }
-    },
-    {
-      "id": 19,
-      "type": {
-        "def": {
           "sequence": {
-            "type": 18
+            "type": 17
           }
         }
       }
     },
     {
-      "id": 20,
+      "id": 19,
       "type": {
         "def": {
           "variant": {

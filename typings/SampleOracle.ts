@@ -13,8 +13,25 @@ export namespace SampleOracle {
         Ok? : never[],
         Err? : InkPrimitives_LangError$3
         };
-    type SampleOracle_SampleOracle_Config$4 = { rpc: string, price: number };
-    type Result$5 = {
+    type Option$5 = {
+        None? : null,
+        Some? : number
+        };
+    type SampleOracle_SampleOracle_Enum$6 = {
+        Foo? : null,
+        Bar? : number,
+        Baz? : [number, number]
+        };
+    type Result$7 = {
+        Ok? : number,
+        Err? : string
+        };
+    type Result$8 = {
+        Ok? : never[],
+        Err? : string
+        };
+    type SampleOracle_SampleOracle_Config$4 = { rpc: string, price: Option$5, compat_u32: number, enums: SampleOracle_SampleOracle_Enum$6[], result1: DPT.FixedArray<Result$7, 2>, result2: DPT.FixedArray<Result$8, 2>, tuple0: never[], tuple1: [ number ], arr: DPT.FixedArray<number, 2>, u8arr: DPT.FixedArray<number, 2>, u8vec: number[] | string };
+    type Result$10 = {
         Ok? : string,
         Err? : InkPrimitives_LangError$3
         };

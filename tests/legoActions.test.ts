@@ -75,6 +75,15 @@ describe("Run lego actions", () => {
     });
 
     await TxHandler.handle(
+      system.tx["system::upgradeRuntime"](
+        { gasLimit: "10000000000000" },
+        [1, 1]
+      ),
+      alice,
+      'system::upgradeRuntime([1,1])'
+    );
+
+    await TxHandler.handle(
       system.tx["system::setDriver"](
         { gasLimit: "10000000000000" },
         "JsDelegate",
@@ -135,13 +144,14 @@ describe("Run lego actions", () => {
         debug: true,
         types: inkAbi.typeRegistry,
         actions: [
-          {
-            cmd: "call",
-            input: [test_input],
-            config: callCfg(callee, inkAbi.contracts.sample_oracle.config),
-          },
-          { cmd: "eval", config: "[input.Ok]" },
-          { cmd: "log" },
+          // {
+          //   cmd: "call",
+          //   input: [test_input],
+          //   config: callCfg(callee, inkAbi.contracts.sample_oracle.config),
+          // },
+          { cmd: "fetch", config: { url: "https://files.kvin.wang:8443/1m.txt", returnTextBody: false } },
+          // { cmd: "eval", config: "console.log(JSON.stringify(input))" },
+          // { cmd: "log" },
         ],
       });
 
